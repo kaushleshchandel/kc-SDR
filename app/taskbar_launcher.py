@@ -33,19 +33,47 @@ class TaskbarLauncher:
         shutdown_btn = tk.Button(self.root, text="Shutdown", command=self.shutdown_raspberry_pi, bg="red", fg="white")
         shutdown_btn.pack(side=tk.RIGHT, padx=5)
 
-        quit_btn = tk.Button(self.root, text="X", command=self.quit, bg="red", fg="white")
-        quit_btn.pack(side=tk.RIGHT, padx=5)
+        reboot_btn = tk.Button(self.root, text="Reboot", command=self.reboot_raspberry_pi, bg="blue", fg="white")
+        reboot_btn.pack(side=tk.RIGHT, padx=5)
 
     def update_status(self, message, color):
         self.status_label.config(text=message, fg=color)
         if color != "blue":  # If it's not a "Running" status
             self.root.after(3000, lambda: self.status_label.config(text="Ready", fg="green"))
 
+    def create_centered_dialog(self, title, message):
+        dialog = tk.Toplevel(self.root)
+        dialog.title(title)
+        dialog.geometry(f"+{self.screen_width//2 - 150}+{self.screen_height//2 - 50}")
+        dialog.attributes('-topmost', True)
+
+        tk.Label(dialog, text=message, padx=20, pady=10).pack()
+        
+        button_frame = tk.Frame(dialog)
+        button_frame.pack(pady=10)
+
+        yes_button = tk.Button(button_frame, text="Yes", command=lambda: dialog.destroy() or setattr(dialog, 'result', True))
+        yes_button.pack(side=tk.LEFT, padx=10)
+        
+        no_button = tk.Button(button_frame, text="No", command=lambda: dialog.destroy() or setattr(dialog, 'result', False))
+        no_button.pack(side=tk.LEFT, padx=10)
+
+        dialog.transient(self.root)
+        dialog.grab_set()
+        self.root.wait_window(dialog)
+        return getattr(dialog, 'result', False)
+
     def shutdown_raspberry_pi(self):
-        if messagebox.askyesno("Shutdown", "Are you sure you want to shutdown the Raspberry Pi?"):
+        if self.create_centered_dialog("Shutdown", "Are you sure you want to shutdown the Raspberry Pi?"):
             self.update_status("Shutting down...", "red")
             self.root.update()
             os.system("sudo shutdown -h now")
+
+    def reboot_raspberry_pi(self):
+        if self.create_centered_dialog("Reboot", "Are you sure you want to reboot the Raspberry Pi?"):
+            self.update_status("Rebooting...", "red")
+            self.root.update()
+            os.system("sudo shutdown -r now")
 
     def quit(self):
         self.app_launcher.close_current_app()
