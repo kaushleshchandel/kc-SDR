@@ -11,7 +11,7 @@ class AppLauncher:
         self.current_app = None
 
         self.apps = [
-            ("SDR-Trunk", "/home/pi/sdr-trunk-linux-aarch64-v0.6.0/bin/sdr-trunk"),
+            ("Trunk", "/home/pi/sdr-trunk-linux-aarch64-v0.6.0/bin/sdr-trunk"),
             ("GQRX", "/usr/bin/gqrx"),
             ("Boondock", "/usr/bin/boondock"),
         ]
